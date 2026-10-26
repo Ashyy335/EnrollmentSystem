@@ -1,25 +1,26 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
+// Create a connection pool to manage concurrent student workflows
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'school_db',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
-const db = pool.promise();
-
+// Test the connection setup immediately upon server boot
 pool.getConnection((err, connection) => {
     if (err) {
-        console.error('❌ Database connection failed: ', err.message);
+        console.error('❌ Database connection failed:', err.message);
     } else {
-        console.log('✅ Express has successfully connected to XAMPP MySQL (school_db)!');
+        console.log('✅ Connected to XAMPP MySQL database (school_db).');
         connection.release();
     }
 });
 
-module.exports = db;
+// Export the promise-based wrapper so you can use clean async/await functions
+module.exports = pool.promise();
